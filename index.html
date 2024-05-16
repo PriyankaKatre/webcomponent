@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <!-- <button id="custom-button">Click me </button>
+    <app-button onclick="login()" text="login" id="custom-button-login"></app-button> -->
+    <app-button text="Add" onclick="add()"></app-button>
+    <app-button text="Remove" onclick="remove()"></app-button>
+
+    <script>
+        const add =() => {
+            const counter = document.createElement('app-counter')
+            counter.setAttribute('until', '5')
+            document.body.append(counter)
+        }
+        const remove = () => {
+            document.querySelector('app-counter').remove()
+        }
+        const loginButton = document.querySelector('#custom-button-login');
+        const login = () => {
+            const origionalButtonText = loginButton.textContent
+            loginButton.setAttribute('inprogress', 'true')
+            setTimeout(()=> {
+                loginButton.removeAttribute('inprogress')
+            }, 1000)
+        }
+        class Button extends HTMLElement {
+            constructor(){
+                super()
+                this.count = 0;
+            }
+
+            connectedCallback(){
+                const text = this.getAttribute('text')
+                this.innerHTML = `<button class='btn'>${text}</button>`;
+            }
+            static get observedAttributes() {
+                return ['inprogress']
+            }
+
+            attributeChangedCallback(attribute, oldValue, newValue) {
+                const button = this.querySelector('button');
+                if(newValue) {
+                    button.textContent= 'Loading...',
+                    button.setAttribute('disabled', 'true'),
+                    button.classList.add('fading')
+                }
+                else {
+                    button.textContent = this.getAttribute('text')
+                    button.removeAttribute('disabled'),
+                    button.classList.remove('fading')
+                }
+            }
+        }
+        customElements.define('app-button', Button)
+
+        class Counter extends HTMLElement {
+            constructor(){
+                super()
+                console.log('constructor')
+                this.count = 0
+                // this.innerHTML = 'counter'
+            }
+
+            // Api call / web socket connection
+            connectedCallback(){
+                console.log('connected')
+                this.innerHTML=this.count
+                const until = this.getAttribute('until')
+                console.log(until)
+                this.interval = setInterval(() => {
+                    if(this.count < until) {
+                        this.count += 1
+                        this.innerHTML = this.count
+                    } else {
+                        clearInterval(this.interval)
+                    }
+                }, 1000)
+            }
+            dicconnectedCallback(){
+                clearInterval(this.interval)
+                console.log('disconnected')
+            }
+            attributeChangedCallback(attribute, oldValue, newValue) {
+                console.log('attribute changed')
+            }
+            // when an element is moved into new document it triggers
+            adoptedCallback(){
+                console.log('adopted')
+            }
+        }
+        customElements.define('app-counter', Counter)
+    </script>
+</body>
+</html>
